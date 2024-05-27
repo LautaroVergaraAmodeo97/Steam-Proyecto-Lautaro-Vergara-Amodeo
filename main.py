@@ -69,15 +69,47 @@ def UserForGenre(genero: str = Query(...,
 @app.get('/best_developer',
          description=""" <font color="blue">
                     1. Haga click en "Quiero probar".<br>
-                    2. Ingrese el año en en la caja que se encuentra abajo.<br>
-                    3. Muevase hacia abajo ver las desarrolladoras menos recomendadas por los usuarios en ese año.
+                    2. Ingrese el año en la caja que se encuentra abajo.<br>
+                    3. Muévase hacia abajo para ver las desarrolladoras menos recomendadas por los usuarios en ese año.
                     </font>
                     """,
          tags=["Consultas Generales"])
 def best_developer_year(year: int = Query(...,
-                                description="Año para filtrar las desarrolladoras", 
-                                example=2010)):
-    return f.best_developer_year(year)
+                                          description="Año para filtrar las desarrolladoras", 
+                                          example=2010)):
+    """
+    Encuentra al desarrollador con más juegos recomendados para un año específico.
+
+    Parameters:
+    - year (int): Año para el que se desea encontrar al mejor desarrollador.
+
+    Returns:
+    - dict: Información sobre el desarrollador con más juegos recomendados.
+    """
+    # Verificar que las columnas necesarias existan en el DataFrame
+    required_columns = {'year_review', 'recommend', 'Sentiment_Score', 'app_name'}
+    if not required_columns.issubset(df_bdev.columns):
+        raise HTTPException(status_code=400, detail=f"Faltan las siguientes columnas necesarias: {required_columns - set(df_bdev.columns)}")
+
+    # Eliminar filas donde 'year_review' es nulo
+    df_bdev_cleaned = df_bdev.dropna(subset=['year_review'])
+
+    # Filtrar por año
+    df_filtered = df_bdev_cleaned[df_bdev_cleaned['year_review'] == year]
+
+    # Filtrar por recomendaciones positivas/neutrales
+    df_filtered = df_filtered[(df_filtered['recommend'] == True) & (df_filtered['Sentiment_Score'].isin([1, 2]))]
+
+    if df_filtered.empty:
+        raise HTTPException(status_code=404, detail="No se encontraron juegos recomendados para el año especificado.")
+
+    # Obtener el top 3 de juegos más recomendados
+    top_games = df_filtered['app_name'].value_counts().head(3)
+
+    # Crear el diccionario de resultados en el formato deseado
+    top_games_dict = {f'Puesto {i+1}': juego for i, juego in enumerate(top_games.index)}
+
+    return JSONResponse(content=top_games_dict)
 
 @app.get('/developer_reviews_analysis',
          description=""" <font color="blue">
@@ -93,6 +125,7 @@ def developer_reviews_analysis(developer: str = Query(...,
                                 example='valve')):
     return f.developer_reviews_analysis(developer)
 
+
 @app.get('/recomendacion_usuario',
          description=""" <font color="blue">
                     INSTRUCCIONES<br>
@@ -100,14 +133,20 @@ def developer_reviews_analysis(developer: str = Query(...,
                     2. Ingrese el juego en la caja que se encuentra abajo.<br>
                     3. Muevase hacia abajo para obtener 5 recomendaciones de juegos similares.
                     </font>
-                    """,       
+                    """,
          tags=["Modelo de recomendación"])
 def recomendacion_usuario(user_id: str = Query(..., 
                                     description="Nombre del juego para el cual se desea obtener recomendaciones", 
                                     example='Killing Floor')):
     resultado = f.recomendacion_usuario(user_id)
-    juegos_recomendados = resultado.tolist()
-    return JSONResponse(content={"juegos_recomendados": juegos_recomendados})
+    if isinstance(resultado, str):
+        # Si la función devuelve un mensaje de error, devolverlo en la respuesta JSON
+        return JSONResponse(content={"mensaje": resultado})
+    else:
+        # Si la función devuelve una lista de recomendaciones, devolverla en la respuesta JSON
+        juegos_recomendados = resultado
+        return JSONResponse(content={"juegos_recomendados": juegos_recomendados})
+
 
 
 @app.get('/user_data',
@@ -124,15 +163,3 @@ def userdata(user_id: str = Query(...,
     return resultado
 
 
-
-@app.get('/best_developer',
-         description=""" <font color="blue">
-                    1. Haga click en "Quiero probar".<br>
-                    2. Ingrese el año en en la caja que se encuentra abajo.<br>
-                    3. Muevase hacia abajo ver las desarrolladoras menos recomendadas por los usuarios en ese año.
-                    </font>
-                    """,
-         tags=["Consultas Generales"])
-def developer(desarrollador: str = Query(..., 
-                                         description="Nombre del desarrollador para el que se desea obtener información")):
-    return f.developer(desarrollador)

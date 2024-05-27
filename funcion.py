@@ -87,22 +87,26 @@ def UserForGenre(genero: str = Query(...,
 
 
 
-def best_developer_year(year: int = Query(..., 
-                                          description="Año para el que se desea encontrar al mejor desarrollador", 
-                                          example=2022)):
+
+@app.get('/best_games_year',
+         description="Encuentra los juegos más recomendados para un año específico.",
+         tags=["Modelo de recomendación"])
+def best_games_year(year: int = Query(..., 
+                                      description="Año para el que se desea encontrar los juegos más recomendados", 
+                                      example=2022)):
     """
-    Encuentra al desarrollador con más juegos recomendados para un año específico.
+    Encuentra los juegos más recomendados para un año específico.
 
     Parameters:
-    - year (int): Año para el que se desea encontrar al mejor desarrollador.
+    - year (int): Año para el que se desea encontrar los juegos más recomendados.
 
     Returns:
-    - dict: Información sobre el desarrollador con más juegos recomendados.
+    - dict: Información sobre los juegos más recomendados.
     """
     # Verificar que las columnas necesarias existan en el DataFrame
     required_columns = {'year_review', 'recommend', 'Sentiment_Score', 'app_name'}
     if not required_columns.issubset(df_bdev.columns):
-        raise KeyError(f"Faltan las siguientes columnas necesarias: {required_columns - set(df_bdev.columns)}")
+        raise HTTPException(status_code=400, detail=f"Faltan las siguientes columnas necesarias: {required_columns - set(df_bdev.columns)}")
 
     # Eliminar filas donde 'year_review' es nulo
     df_bdev_cleaned = df_bdev.dropna(subset=['year_review'])
@@ -113,15 +117,16 @@ def best_developer_year(year: int = Query(...,
     # Filtrar por recomendaciones positivas/neutrales
     df_filtered = df_filtered[(df_filtered['recommend'] == True) & (df_filtered['Sentiment_Score'].isin([1, 2]))]
 
+    if df_filtered.empty:
+        raise HTTPException(status_code=404, detail="No se encontraron juegos recomendados para el año especificado.")
+
     # Obtener el top 3 de juegos más recomendados
-    top_games = df_filtered.groupby('app_name')['recommend'].count().sort_values(ascending=False).head(3)
+    top_games = df_filtered['app_name'].value_counts().head(3)
 
     # Crear el diccionario de resultados en el formato deseado
     top_games_dict = {f'Puesto {i+1}': juego for i, juego in enumerate(top_games.index)}
 
-    # Devolver el diccionario en el formato deseado
-    return top_games_dict
-
+    return JSONResponse(content=top_games_dict)
 
 def developer_reviews_analysis(developer: str = Query(..., 
                                                       description="Nombre del desarrollador para el que se desea realizar el análisis")):
@@ -226,8 +231,8 @@ def developer(desarrollador: str = Query(...,
     return grouped_data
 
 
-def recomendacion_usuario(user_id: str = Query(..., 
-                                              description="ID del usuario para el que se desean obtener recomendaciones")):
+
+def recomendacion_usuario(user_id: str = Query(..., description="ID del usuario para el que se desean obtener recomendaciones")):
     """
     Obtiene una lista de 5 juegos recomendados para un usuario específico.
 
@@ -239,10 +244,14 @@ def recomendacion_usuario(user_id: str = Query(...,
     """
     # Verificar que el usuario existe en el DataFrame
     if user_id not in df_bdev['user_id'].values:
-        return f"No se encontró el usuario con id: {user_id}"
+        return ["No se encontró el usuario con id: {}".format(user_id)]
 
     # Obtener los datos de los juegos revisados por el usuario
     juegos_usuario = df_bdev[df_bdev['user_id'] == user_id]
+
+    # Verificar si el usuario tiene juegos revisados
+    if juegos_usuario.empty:
+        return ["El usuario con id {} no tiene juegos revisados.".format(user_id)]
 
     # Obtener los géneros de los juegos revisados por el usuario
     generos_usuario = juegos_usuario['genres'].unique()
@@ -250,6 +259,10 @@ def recomendacion_usuario(user_id: str = Query(...,
     # Filtrar los juegos que coincidan con los géneros y que el usuario no haya revisado
     juegos_recomendados = df_bdev[(df_bdev['genres'].isin(generos_usuario)) & 
                                   (~df_bdev['item_id'].isin(juegos_usuario['item_id']))]
+
+    # Verificar si hay juegos recomendados
+    if juegos_recomendados.empty:
+        return ["No se encontraron juegos recomendados para el usuario con id {}.".format(user_id)]
 
     # Ordenar los juegos por el número de recomendaciones positivas
     juegos_recomendados['positive_recommendations'] = juegos_recomendados.groupby('item_id')['recommend'].transform('sum')
