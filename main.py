@@ -66,15 +66,6 @@ def UserForGenre(genero: str = Query(...,
                             example='Action')):
     return f.UserForGenre(genero)
 
-@app.get('/best_developer',
-         description=""" <font color="blue">
-                    1. Haga click en "Quiero probar".<br>
-                    2. Ingrese el año en la caja que se encuentra abajo.<br>
-                    3. Muévase hacia abajo para ver las desarrolladoras menos recomendadas por los usuarios en ese año.
-                    </font>
-                    """,
-         tags=["Consultas Generales"])
-
 
 
 @app.get('/best_games_year',
