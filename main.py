@@ -74,17 +74,23 @@ def UserForGenre(genero: str = Query(...,
                     </font>
                     """,
          tags=["Consultas Generales"])
-def best_developer_year(year: int = Query(...,
-                                          description="Año para filtrar las desarrolladoras", 
-                                          example=2010)):
+
+
+
+@app.get('/best_games_year',
+         description="Encuentra los juegos más recomendados para un año específico.",
+         tags=["Modelo de recomendación"])
+def best_games_year(year: int = Query(..., 
+                                      description="Año para el que se desea encontrar los juegos más recomendados", 
+                                      example=2022)):
     """
-    Encuentra al desarrollador con más juegos recomendados para un año específico.
+    Encuentra los juegos más recomendados para un año específico.
 
     Parameters:
-    - year (int): Año para el que se desea encontrar al mejor desarrollador.
+    - year (int): Año para el que se desea encontrar los juegos más recomendados.
 
     Returns:
-    - dict: Información sobre el desarrollador con más juegos recomendados.
+    - dict: Información sobre los juegos más recomendados.
     """
     # Verificar que las columnas necesarias existan en el DataFrame
     required_columns = {'year_review', 'recommend', 'Sentiment_Score', 'app_name'}
@@ -110,6 +116,7 @@ def best_developer_year(year: int = Query(...,
     top_games_dict = {f'Puesto {i+1}': juego for i, juego in enumerate(top_games.index)}
 
     return JSONResponse(content=top_games_dict)
+
 
 @app.get('/developer_reviews_analysis',
          description=""" <font color="blue">
