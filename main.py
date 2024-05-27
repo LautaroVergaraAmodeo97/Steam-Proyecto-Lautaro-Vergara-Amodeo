@@ -68,24 +68,6 @@ def UserForGenre(genero: str = Query(...,
 
 
 
-@app.get('/best_games_year',
-         description="Encuentra los juegos más recomendados para un año específico.",
-         tags=["Modelo de recomendación"])
-def best_games_year(year: int = Query(..., 
-                                      description="Año para el que se desea encontrar los juegos más recomendados", 
-                                      example=2022)):
-    """
-    Encuentra los juegos más recomendados para un año específico.
-
-    Parameters:
-    - year (int): Año para el que se desea encontrar los juegos más recomendados.
-
-    Returns:
-    - dict: Información sobre los juegos más recomendados.
-    """
-    return f.best_games_year(year)
-
-
 @app.get('/developer_reviews_analysis',
          description=""" <font color="blue">
                     INSTRUCCIONES<br>
