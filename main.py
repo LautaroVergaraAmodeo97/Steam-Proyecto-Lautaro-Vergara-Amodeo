@@ -83,30 +83,7 @@ def best_games_year(year: int = Query(...,
     Returns:
     - dict: Información sobre los juegos más recomendados.
     """
-    # Verificar que las columnas necesarias existan en el DataFrame
-    required_columns = {'year_review', 'recommend', 'Sentiment_Score', 'app_name'}
-    if not required_columns.issubset(df_bdev.columns):
-        raise HTTPException(status_code=400, detail=f"Faltan las siguientes columnas necesarias: {required_columns - set(df_bdev.columns)}")
-
-    # Eliminar filas donde 'year_review' es nulo
-    df_bdev_cleaned = df_bdev.dropna(subset=['year_review'])
-
-    # Filtrar por año
-    df_filtered = df_bdev_cleaned[df_bdev_cleaned['year_review'] == year]
-
-    # Filtrar por recomendaciones positivas/neutrales
-    df_filtered = df_filtered[(df_filtered['recommend'] == True) & (df_filtered['Sentiment_Score'].isin([1, 2]))]
-
-    if df_filtered.empty:
-        raise HTTPException(status_code=404, detail="No se encontraron juegos recomendados para el año especificado.")
-
-    # Obtener el top 3 de juegos más recomendados
-    top_games = df_filtered['app_name'].value_counts().head(3)
-
-    # Crear el diccionario de resultados en el formato deseado
-    top_games_dict = {f'Puesto {i+1}': juego for i, juego in enumerate(top_games.index)}
-
-    return JSONResponse(content=top_games_dict)
+    return f.best_games_year(year)
 
 
 @app.get('/developer_reviews_analysis',
