@@ -85,43 +85,6 @@ def UserForGenre(genero: str = Query(...,
 
     return resultado
 
-def best_developer_year(year: int = Query(...,
-                                          description="Año para filtrar las desarrolladoras", 
-                                          example=2010)):
-    """
-    Encuentra al desarrollador con más juegos recomendados para un año específico.
-
-    Parameters:
-    - year (int): Año para el que se desea encontrar al mejor desarrollador.
-
-    Returns:
-    - dict: Información sobre el desarrollador con más juegos recomendados.
-    """
-       # Verificar que las columnas necesarias existan en el DataFrame
-    required_columns = {'year_review', 'recommend', 'Sentiment_Score', 'app_name'}
-    if not required_columns.issubset(df_bdev.columns):
-        raise KeyError(f"Faltan las siguientes columnas necesarias: {required_columns - set(df_bdev.columns)}")
-
-    # Eliminar filas donde 'year_review' es nulo
-    df_bdev_cleaned = df_bdev.dropna(subset=['year_review'])
-
-    # Filtrar por año
-    df_filtered = df_bdev_cleaned[df_bdev_cleaned['year_review'] == year]
-
-    # Filtrar por recomendaciones positivas/neutrales
-    df_filtered = df_filtered[(df_filtered['recommend'] == True) & (df_filtered['Sentiment_Score'].isin([1, 2]))]
-
-    # Obtener el top 3 de juegos más recomendados
-    top_games = df_filtered.groupby('app_name')['recommend'].count().sort_values(ascending=False).head(3)
-
-    # Crear el diccionario de resultados en el formato deseado
-    top_games_dict = {f'Puesto {i+1}': juego for i, juego in enumerate(top_games.index)}
-
-    # Devolver el diccionario en el formato deseado
-    return top_games_dict
-
-
-
 
 def developer_reviews_analysis(developer: str = Query(..., 
                                                       description="Nombre del desarrollador para el que se desea realizar el análisis")):
