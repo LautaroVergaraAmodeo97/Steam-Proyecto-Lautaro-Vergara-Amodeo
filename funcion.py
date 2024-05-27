@@ -10,7 +10,7 @@ import pyarrow.parquet as pq
 df_primigenio = pd.read_parquet('df_primigenio.parquet')
 df_ugenre = pd.read_parquet('df_ugenre.parquet')
 df_bdev = pd.read_parquet('C:\\Users\\User\\OneDrive\\Escritorio\\Segunda parte\\df_bdev.parquet')
-df_sentimiento = pq.read_table('C:/Users/User/OneDrive/Escritorio/Segunda parte/df_sentimiento').to_pandas()
+df_sentimiento = pq.read_table('C:/Users/User/OneDrive/Escritorio/Segunda parte/df_sentimiento.parquet').to_pandas()
 
 
 
