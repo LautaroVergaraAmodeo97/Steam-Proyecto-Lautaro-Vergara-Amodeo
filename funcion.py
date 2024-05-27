@@ -1,7 +1,7 @@
 
 # Importaciones
 from pathlib import Path
-from fastapi import Query
+from fastapi import Query, FastAPI
 import pandas as pd
 import pyarrow.parquet as pq
 
@@ -85,23 +85,17 @@ def UserForGenre(genero: str = Query(...,
 
     return resultado
 
-
-
-
-@app.get('/best_games_year',
-         description="Encuentra los juegos más recomendados para un año específico.",
-         tags=["Modelo de recomendación"])
-def best_games_year(year: int = Query(..., 
-                                      description="Año para el que se desea encontrar los juegos más recomendados", 
-                                      example=2022)):
+def best_developer_year(year: int = Query(...,
+                                          description="Año para filtrar las desarrolladoras", 
+                                          example=2010)):
     """
-    Encuentra los juegos más recomendados para un año específico.
+    Encuentra al desarrollador con más juegos recomendados para un año específico.
 
     Parameters:
-    - year (int): Año para el que se desea encontrar los juegos más recomendados.
+    - year (int): Año para el que se desea encontrar al mejor desarrollador.
 
     Returns:
-    - dict: Información sobre los juegos más recomendados.
+    - dict: Información sobre el desarrollador con más juegos recomendados.
     """
     # Verificar que las columnas necesarias existan en el DataFrame
     required_columns = {'year_review', 'recommend', 'Sentiment_Score', 'app_name'}
