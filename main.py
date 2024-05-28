@@ -66,7 +66,7 @@ def UserForGenre(genero: str = Query(...,
                             example='Action')):
     return f.UserForGenre(genero)
 
-
+ 
 
 @app.get('/developer_reviews_analysis',
          description=""" <font color="blue">
