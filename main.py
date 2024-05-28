@@ -1,5 +1,6 @@
 import importlib
 from fastapi import FastAPI, Query
+import os
 from fastapi.responses import JSONResponse, HTMLResponse
 import funcion as f
 importlib.reload(f)
@@ -122,4 +123,5 @@ def userdata(user_id: str = Query(...,
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
