@@ -9,8 +9,8 @@ import pyarrow.parquet as pq
 # Importar los DataFrames desde archivos Parquet
 df_primigenio = pd.read_parquet('df_primigenio.parquet')
 df_ugenre = pd.read_parquet('df_ugenre.parquet')
-df_bdev = pd.read_parquet('C:\\Users\\User\\OneDrive\\Escritorio\\Segunda parte\\df_bdev.parquet')
-df_sentimiento = pq.read_table('C:/Users/User/OneDrive/Escritorio/Segunda parte/df_sentimiento.parquet').to_pandas()
+df_bdev = pd.read_parquet('df_bdev.parquet')
+df_sentimiento = pq.read_table('df_sentimiento.parquet').to_pandas()
 
 
 
