@@ -24,4 +24,10 @@ Estas funciones buscan exponer insights específicos sobre los datos que puedan 
 5. recomendacion_usuario: Ingresando el id de un usuario, deberíamos recibir una lista con 5 juegos recomendados para dicho usuario.
 El desarrollo de las funciones y la construcción de sus bases se encuentra en el notebook: 7. 
 
-Estas consultas y los merge que hicieron falta para que funcione se pueden ver en más detalle en mi repositorio de Github: [link_funciones](https://github.com/LautaroVergaraAmodeo97/Steam-Proyecto-Lautaro-Vergara-Amodeo/tree/main)
+Estas consultas y los merge que hicieron falta para que funcione se pueden ver en las notebooks de este repositorio con mucho más detalle ya que ahí me explayo con mucho más atención al detalle lo que voy haciendo y describiendo (explicando el uso de librerías y el por qué ese uso).
+
+Lo que muestro en el vídeo es sobre este github :[link_repositorio](https://github.com/LautaroVergaraAmodeo97/Deploy-Primer-Proyecto---Lautaro-Vergara-Amodeo/tree/main)
+
+Y aquí les dejo el link del vídeo del proyecto: [video](https://drive.google.com/file/d/147Pc6MWwYKGXpzAFa33bzRfYmA4Bwmhw/view?usp=sharing)
+
+
